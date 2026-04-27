@@ -1,0 +1,102 @@
+﻿<Window x:Class="Kanban.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Kanban"
+        mc:Ignorable="d"
+        Title="Kanban board" Height="800" Width="1000"
+        MinHeight="500" MinWidth="1000">
+    <Window.Resources>
+        <DataTemplate x:Key="AddedTaskTemplate" DataType="ListBoxItem">
+            <Border CornerRadius="20" Padding="8" Margin="5" BorderBrush="Gray" BorderThickness="1">
+                <StackPanel>
+                    <TextBlock Text="{Binding Content}" TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                        <Button Content="&lt;" Width="30" Click="LeftButton" Margin="2" Padding="6" BorderThickness="0"/>
+                        <Button Content="Edit" Width="40" Click="EditButton" Margin="2" Padding="6" BorderThickness="0"/>
+                        <Button Content="&gt;" Width="30" Click="RightButton" Margin="2" Padding="6" BorderThickness="0"/>
+                        <Button Content="Delete" Width="60" Click="DeleteButton" Margin="2" Padding="6" BorderThickness="0"
+                                Background="#E74C3C" Foreground="White"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <Grid Grid.Column="0">
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <Label Grid.Row="0" HorizontalAlignment="Center" FontWeight="Bold" FontSize="16">TO DO</Label>
+            <ListBox Grid.Row="1"
+                    ItemTemplate="{StaticResource AddedTaskTemplate}"
+                    ItemsSource="{Binding ToDoTasks}"
+                    HorizontalContentAlignment="Stretch"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    BorderThickness="0"
+                     />
+        </Grid>
+        
+        <Grid Grid.Column="1">
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0" HorizontalAlignment="Center" FontWeight="Bold" FontSize="16">IN PROGRESS</Label>
+            <ListBox Grid.Row="1"
+                     ItemTemplate="{StaticResource AddedTaskTemplate}"
+                     ItemsSource="{Binding InProgressTasks}"
+                     HorizontalContentAlignment="Stretch"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     BorderThickness="0"
+                        />
+        </Grid>
+        
+        
+        <Grid Grid.Column="2">
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <Label Grid.Row="0" HorizontalAlignment="Center" FontWeight="Bold" FontSize="16">DONE</Label>
+            <ListBox Grid.Row="1" 
+                     ItemTemplate="{StaticResource AddedTaskTemplate}"
+                     ItemsSource="{Binding DoneTasks}"
+                     HorizontalContentAlignment="Stretch"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     BorderThickness="0"
+                        />
+        </Grid>
+        
+        <Grid Grid.Column="3">
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            
+            <Label x:Name="ActionHeader" Grid.Row="0" HorizontalAlignment="Center" FontWeight="Bold" FontSize="16">Add Task</Label>
+            <TextBox Grid.Row="1" x:Name="TaskTextBox" Padding="6" Margin="10" FontSize="12"/>
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+                <Button Foreground="White" Background="#4CAF50" Content="Save" Width="90" Margin="2" Padding="10" BorderThickness="0" Click="SaveButton"/>
+                <Button Content="Cancel" Width="90" Margin="2" Padding="10" BorderThickness="0" Click="CancelButton"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
