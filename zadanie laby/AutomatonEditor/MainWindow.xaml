@@ -1,0 +1,73 @@
+﻿<Window
+    x:Class="AutomatonEditor.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="Edytor Automatów"
+    Width="800"
+    Height="600">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="7*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+        <Border x:Name="ObszarRysowania"
+            Grid.Column="0">
+            <ItemsControl ItemsSource="{Binding MyAutomaton.States}"
+                          MouseLeftButtonDown="Canvas_MouseLeftButtonDown">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas x:Name="Plotno" IsItemsHost="True" Background="Transparent"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                        <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Width="50" Height="50" MouseLeftButtonDown="State_MouseLeftButtonDown"
+                              MouseMove="State_MouseMove"
+                              MouseLeftButtonUp="State_MouseLeftButtonUp"
+                              Background="Transparent" >
+                            <Ellipse x:Name="StateElli"
+                                     Fill="HotPink"
+                                     Stroke="DeepPink"
+                                     StrokeThickness="2"/>
+                            <Ellipse x:Name="AkceptujacyStan" Stroke="Black" StrokeThickness="1" Visibility="Hidden"/>
+                            <TextBlock Text="{Binding Name}" HorizontalAlignment="Center"
+                                                VerticalAlignment="Center" FontWeight="Bold"/>
+                        </Grid>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter TargetName="StateElli" Property="Stroke" Value="Purple"/>
+                                <Setter TargetName="StateElli" Property="StrokeThickness" Value="5"/>
+                                <Setter TargetName="StateElli" Property="Fill" Value="MediumPurple"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsAccepting}" Value="True">
+                                <Setter TargetName="AkceptujacyStan" Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
+        
+        <StackPanel Grid.Column="1" Background="LightPink">
+            <TextBlock FontWeight="Bold" Margin="20,20,20,0">Edycja stanu</TextBlock>
+            <Button Content="Usuń stan" Margin="20,5,20,10" Click="Button_DeleteState"/>
+            <CheckBox Content="Oznacz jako akceptujący" Margin="20,0,20,5"
+                      IsChecked="{Binding IsAccepting}"/>
+            <CheckBox Content="Oznacz jako początkowy" Margin="20,0,20,20"/>
+            <TextBlock FontWeight="Bold" Margin="20,20,20,0">Dodawanie przejścia</TextBlock>
+            <TextBlock Margin="20,10,10,0">Stan początkowy:</TextBlock>
+            
+            <ComboBox x:Name="StanPoczatkowy" Margin="20,5,20,0"
+                      />
+            <TextBlock Margin="20,5,20,0">Stan końcowy:</TextBlock>
+            <ComboBox x:Name="StanKoncowy" Margin="20,5,20,0"/>
+            <Button Content="Dodaj przejście" Margin="20,15,20,0"/>
+        </StackPanel>
+    </Grid>
+</Window>
