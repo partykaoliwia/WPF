@@ -25,6 +25,27 @@
                 <x:Type TypeName="local:Gender"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
+
+        <ControlTemplate x:Key="ErrorTemplate">
+            <StackPanel Orientation="Horizontal">
+                <Border BorderBrush="Red" BorderThickness="2">
+                    <AdornedElementPlaceholder x:Name="ControlWithError"/>
+                </Border>
+                <TextBlock Text="!" Foreground="Red" FontWeight="Bold" FontSize="16" Margin="5,0"
+                   ToolTip="{Binding ElementName=ControlWithError, Path=AdornedElement.(Validation.Errors)[0].ErrorContent}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+        </ControlTemplate>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Validation.ErrorTemplate" Value="{StaticResource ErrorTemplate}"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
     </Window.Resources>
     
     
@@ -56,13 +77,17 @@
             <Label Grid.Column="0" Grid.Row="2">Email:</Label>
             <Label Grid.Column="0" Grid.Row="3">Phone:</Label>
             <Label Grid.Column="0" Grid.Row="4">Gender:</Label>
-            <TextBox Grid.Column="1" Grid.Row="0" Height="24"
+            <TextBox x:Name="NameInput"
+                     Grid.Column="1" Grid.Row="0" Height="24"
                      Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBox Grid.Column="1" Grid.Row="1" Height="24" 
+            <TextBox x:Name="SurnameInput"
+                     Grid.Column="1" Grid.Row="1" Height="24" 
                      Text="{Binding Surname, UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBox Grid.Column="1" Grid.Row="2" Height="24"
+            <TextBox x:Name="EmailInput"
+                     Grid.Column="1" Grid.Row="2" Height="24"
                      Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
-            <TextBox Grid.Column="1" Grid.Row="3" Height="24"
+            <TextBox x:Name="PhoneInput"
+                     Grid.Column="1" Grid.Row="3" Height="24"
                      Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"/>
             <ComboBox Grid.Column="1" Grid.Row="4" Height="24"
                       ItemsSource="{Binding Source={StaticResource GenderList}}"

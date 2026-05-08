@@ -14,6 +14,7 @@
         >
 
     <Window.Resources>
+        <local:LockToVisibilityConverter x:Key="LockToVisibilityConverter"/>
         <BitmapImage x:Key="WomanAvatar" UriSource="/woman.jpg"/>
         <BitmapImage x:Key="ManAvatar" UriSource="/man.jpg"/>
         <!--TEMPLATKA DLA KONTAKTÓW-->
@@ -97,7 +98,7 @@
             </Grid>
         </DataTemplate>
         <!---STYL KONTAKTÓW-->
-        <CollectionViewSource Source="{Binding}" x:Key="ContactsViewSource"/>
+        <CollectionViewSource Source="{Binding Contacts}" x:Key="ContactsViewSource"/>
                 <Style x:Key="ContactListItemStyle" TargetType="ListBoxItem">
                     <Setter Property="ContentTemplate" Value="{StaticResource ContactListItemTemplate}"/>
                     
@@ -172,9 +173,66 @@
                 
             </TabItem>
             <TabItem Header="Grid">
-                <DataGrid ItemsSource="{Binding}"
+                <DataGrid ItemsSource="{Binding Contacts}"
                           AutoGenerateColumns="True"
                           CanUserAddRows="True"/>
+            </TabItem>
+            <TabItem Header="Validation Settings">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Button Grid.Row="0" Width="200" Height="30"
+                            Content="Toggle validation settings"
+                            Click="ToggleValidationSettings_Click"/>
+                    
+                    
+                    <StackPanel Grid.Row="1" Margin="0,20,0,0"
+                                Visibility="{Binding IsValidationUnlocked, Converter={StaticResource LockToVisibilityConverter}}">
+                        <TextBlock Text="Assign validation rules to fields:" FontSize="16" FontWeight="Bold"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Content="Name:" Grid.Row="0" Grid.Column="0" Margin="5"/>
+                            <ComboBox ItemsSource="{Binding AvailableRules}" 
+                                      SelectedItem="{Binding SelectedNameRule}" 
+                                      DisplayMemberPath="Name" 
+                                      Grid.Row="0" Grid.Column="1" Margin="5"/>     
+
+                            <Label Content="Surname:" Grid.Row="1" Grid.Column="0" Margin="5"/>
+                            <ComboBox ItemsSource="{Binding AvailableRules}" 
+                                      SelectedItem="{Binding SelectedSurnameRule}" 
+                                      DisplayMemberPath="Name" 
+                                      Grid.Row="1" Grid.Column="1" Margin="5"/>
+
+                            <Label Content="Email:" Grid.Row="2" Grid.Column="0" Margin="5"/>
+                            <ComboBox ItemsSource="{Binding AvailableRules}" 
+                                      SelectedItem="{Binding SelectedEmailRule}" 
+                                      DisplayMemberPath="Name" 
+                                      Grid.Row="2" Grid.Column="1" Margin="5"/>
+
+                            <Label Content="Phone:" Grid.Row="3" Grid.Column="0" Margin="5"/>
+                            <ComboBox ItemsSource="{Binding AvailableRules}" 
+                                      SelectedItem="{Binding SelectedPhoneRule}" 
+                                      DisplayMemberPath="Name" 
+                                      Grid.Row="3" Grid.Column="1" Margin="5"/>
+
+                        </Grid>
+                    </StackPanel>
+
+                </Grid>
+                
             </TabItem>
         </TabControl>
             

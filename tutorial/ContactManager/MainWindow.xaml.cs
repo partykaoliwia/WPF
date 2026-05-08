@@ -1,32 +1,47 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
-using System.Text;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml.Serialization;
 using Microsoft.Win32;
+using ContactManager.Validation;
 
 namespace ContactManager
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private ObservableCollection<Contact> Contacts { get; set; }
+        public ObservableCollection<Contact> Contacts { get; set; }
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private bool _isValidationUnlocked;
+        public bool IsValidationUnlocked
+        { 
+            get 
+            { return _isValidationUnlocked; } 
+            set 
+            { _isValidationUnlocked = value; OnPropertyChanged(nameof(IsValidationUnlocked)); } } 
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         public MainWindow()
         {
             InitializeComponent();
             Contacts = new ObservableCollection<Contact>();
-            this.DataContext = Contacts;
+            this.DataContext = this;
 
+        }
+        private void ToggleValidationSettings_Click(object sender, RoutedEventArgs e)
+        {
+            IsValidationUnlocked = !IsValidationUnlocked;
+            if (IsValidationUnlocked)
+            {
+                LoadRulesFromDLLs();
+            }
         }
 
         private void MenuItem_Exit(object sender, RoutedEventArgs e)
@@ -43,7 +58,14 @@ namespace ContactManager
         {
             Opacity = 0.5;
             var Window_AddContact = new AddContactWindow();
-            if(Window_AddContact.ShowDialog().Value)
+            // Przekazujemy reguły do nowego okna
+            Window_AddContact.ApplyRules(
+                SelectedNameRule as ValidationRule,
+                SelectedSurnameRule as ValidationRule,
+                SelectedEmailRule as ValidationRule,
+                SelectedPhoneRule as ValidationRule
+            );
+            if (Window_AddContact.ShowDialog().Value)
             {
                 Contacts.Add(Window_AddContact.NewContact);
             }
@@ -123,5 +145,57 @@ namespace ContactManager
             }
 
         }
+        // Kolekcja wszystkich reguł znalezionych w DLL-kach
+        public ObservableCollection<IValidation> AvailableRules { get; set; } = new();
+
+        // Właściwości przechowujące wybraną regułę dla każdego pola
+        private IValidation? _selectedNameRule;
+        public IValidation? SelectedNameRule
+        {
+            get => _selectedNameRule;
+            set { _selectedNameRule = value; OnPropertyChanged(nameof(SelectedNameRule)); }
+        }
+
+        // ... analogicznie dla Surname, Email i Phone ...
+        private IValidation? _selectedSurnameRule;
+        public IValidation? SelectedSurnameRule { get => _selectedSurnameRule; set { _selectedSurnameRule = value; OnPropertyChanged(nameof(SelectedSurnameRule)); } }
+
+        private IValidation? _selectedEmailRule;
+        public IValidation? SelectedEmailRule { get => _selectedEmailRule; set { _selectedEmailRule = value; OnPropertyChanged(nameof(SelectedEmailRule)); } }
+
+        private IValidation? _selectedPhoneRule;
+        public IValidation? SelectedPhoneRule { get => _selectedPhoneRule; set { _selectedPhoneRule = value; OnPropertyChanged(nameof(SelectedPhoneRule)); } }
+
+
+        private void LoadRulesFromDLLs()
+        {
+            AvailableRules.Clear();
+            // Szukamy w folderze, gdzie znajduje się nasz plik .exe
+            string path = AppDomain.CurrentDomain.BaseDirectory;
+            string[] dllFiles = Directory.GetFiles(path, "*.dll");
+
+            foreach (string file in dllFiles)
+            {
+                try
+                {
+                    Assembly assembly = Assembly.LoadFrom(file);
+                    // Szukamy klas, które implementują IValidation i nie są interfejsami/abstrakcyjne
+                    var rules = assembly.GetTypes()
+                        .Where(t => typeof(IValidation).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+                    foreach (var ruleType in rules)
+                    {
+                        var ruleInstance = Activator.CreateInstance(ruleType) as IValidation;
+                        if (ruleInstance != null)
+                        {
+                            AvailableRules.Add(ruleInstance);
+                        }
+                    }
+                }
+                catch { /* Niektóre DLL mogą nie być bibliotekami .NET lub być zablokowane */ }
+            }
+        }
+
+
     }
 }
