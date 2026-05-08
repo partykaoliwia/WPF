@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace WorkspacePlanner
 {
@@ -18,14 +19,92 @@ namespace WorkspacePlanner
     public partial class MainWindow : Window
     {
         public ObservableCollection<WorkspaceItem> Items { get; set; }
+        private DispatcherTimer _timer;
+        private string _pendingShape;
+        private double _progress;
         public MainWindow()
         {
             InitializeComponent();
             Items = new ObservableCollection<WorkspaceItem>();
             this.DataContext = this;
-        }
 
+            _timer = new DispatcherTimer();
+            _timer.Interval = TimeSpan.FromMilliseconds(30);
+            _timer.Tick += Timer_Tick;
+        }
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            _progress += 1;
+            ShapeProgressBar.Value = _progress;
+            if(_progress >= 100)
+            {
+                _timer.Stop();
+                ShapeProgressBar.Value = 0;
+                if (_pendingShape == "Rectangle")
+                {
+                    DrawRectangle();
+                }
+                else if(_pendingShape=="Ellipse")
+                {
+                    DrawEllipse();
+                }
+            }
+        }
+        private void DrawEllipse()
+        {
+
+            var newEllipse = new WorkspaceItem
+            {
+                Name = "Eli " + (Items.Count + 1),
+                ShapeType = "Elipse",
+                X = 50,
+                Y = 50
+            };
+            Items.Add(newEllipse);
+            var elli = new Ellipse
+            {
+                Width = 50,
+                Height = 50,
+                Fill = Brushes.Green,
+                Stroke = Brushes.Black,
+                StrokeThickness = 1
+            };
+
+            elli.DataContext = newEllipse; // !!!!
+
+            Binding bindX = new Binding("X")
+            {
+                Source = newEllipse,
+                Mode = BindingMode.TwoWay,
+            };
+            Binding bindY = new Binding("Y")
+            {
+                Source = newEllipse,
+                Mode = BindingMode.TwoWay,
+            };
+            elli.SetBinding(Canvas.LeftProperty, bindX);
+            elli.SetBinding(Canvas.TopProperty, bindY);
+            elli.MouseDown += Shape_MouseDown;
+            elli.MouseMove += Shape_MouseMove;
+            elli.MouseUp += Shape_MouseUp;
+
+            AttachContextMenu(elli);
+
+            WorkspaceCanvas.Children.Add(elli);
+        }
         private void Button_AddRectangle(object sender, RoutedEventArgs e)
+        {
+            if (_timer.IsEnabled) return;
+            _pendingShape = "Rectangle";
+            StartLoading();
+        }
+        private void StartLoading()
+        {
+            _progress = 0;
+            ShapeProgressBar.Value = 0;
+            _timer.Start();
+        }
+        private void DrawRectangle()
         {
             var newRectangle = new WorkspaceItem
             {
@@ -40,7 +119,7 @@ namespace WorkspacePlanner
                 Width = 50,
                 Height = 50,
                 Fill = Brushes.DarkMagenta,
-                Stroke= Brushes.Black,
+                Stroke = Brushes.Black,
                 StrokeThickness = 1,
             };
 
@@ -101,43 +180,10 @@ namespace WorkspacePlanner
 
         private void Button_AddEllipse(object sender, RoutedEventArgs e)
         {
-            var newEllipse = new WorkspaceItem
-            {
-                Name = "Eli " + (Items.Count + 1),
-                ShapeType = "Elipse",
-                X = 50, Y = 50
-            };
-            Items.Add(newEllipse);
-            var elli = new Ellipse
-            {
-                Width = 50,
-                Height = 50,
-                Fill = Brushes.Green,
-                Stroke = Brushes.Black,
-                StrokeThickness = 1
-            };
+            if (_timer.IsEnabled) return;
+            _pendingShape = "Ellipse";
+            StartLoading();
 
-            elli.DataContext = newEllipse; // !!!!
-
-            Binding bindX = new Binding("X")
-            {
-                Source = newEllipse,
-                Mode = BindingMode.TwoWay,
-            };
-            Binding bindY = new Binding("Y")
-            {
-                Source = newEllipse,
-                Mode = BindingMode.TwoWay,
-            };
-            elli.SetBinding(Canvas.LeftProperty, bindX);
-            elli.SetBinding(Canvas.TopProperty, bindY);
-            elli.MouseDown += Shape_MouseDown;
-            elli.MouseMove += Shape_MouseMove;
-            elli.MouseUp += Shape_MouseUp;
-
-            AttachContextMenu(elli);
-
-            WorkspaceCanvas.Children.Add(elli);
         }
 
         private bool _isDragging;
