@@ -42,6 +42,10 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 X = position.X - 25,
                 Y = position.Y - 25,
             };
+            if(MyAutomaton.States.Count()==0)
+            {
+                newState.IsInitial = true;
+            }
             MyAutomaton.States.Add(newState);
             _stateCounter++;
         }
@@ -51,6 +55,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             {
                 SelectedState.IsSelected = false;
                 SelectedState = null;
+
             }
         }
     }
@@ -99,9 +104,67 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         if(SelectedState !=null)
         {
+            if(SelectedState.IsInitial==true)
+            {
+                MessageBox.Show("Stan, który chcesz usunąć jest stanem początkowym. Wybierz inny stan, by usunąć ten.", "", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
+
+            var przejsciaDoUsuniecia = MyAutomaton.Transitions.Where(t=> t.Source ==SelectedState || t.Target == SelectedState).ToList();
+            foreach(var przejscie in przejsciaDoUsuniecia)
+            {
+                MyAutomaton.Transitions.Remove(przejscie);
+            }
             MyAutomaton.States.Remove(SelectedState);
            // _stateCounter--;
             SelectedState = null;
         }
+    }
+
+
+    private void Checkbox_Initial(object sender, RoutedEventArgs e)
+    {
+
+        if(InitialCheckbox.IsChecked == true)
+        {
+            foreach(var state in MyAutomaton.States)
+            {
+                if (state !=SelectedState)
+                {
+                    state.IsInitial = false;
+                }
+            }
+        }
+        else // musi być dokładnie jeden stan początkowy
+        {
+            InitialCheckbox.IsChecked = true;
+            SelectedState.IsInitial = true;
+            MessageBox.Show("Automat musi posiadać dokładnie jeden stan początkowy. Nie możesz go odznaczyć, możesz jedynie przypisać ten status innemu stanowi.", "", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+        }
+    }
+
+    private void Checkbox_Accepting(object sender, RoutedEventArgs e)
+    {
+
+    }
+
+    private void Button_AddTransition(object sender, RoutedEventArgs e)
+    {
+        var poczatkowy = (State?)StanPoczatkowyCombobox.SelectedItem;
+        var koncowy = (State?)StanKoncowyCombobox.SelectedItem;
+        if(poczatkowy==null || koncowy==null)
+        {
+            MessageBox.Show("Wybierz oba stany by dodać przejście", "",MessageBoxButton.OK,MessageBoxImage.Exclamation);
+            return;
+        }
+        if(poczatkowy==koncowy)
+        {
+            MessageBox.Show("Stany początkowy i końcowy muszą być różne!", "", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            return;
+        }
+        var przejscie = new Transition();
+        przejscie.Source = poczatkowy;
+        przejscie.Target = koncowy;
+        MyAutomaton.Transitions.Add(przejscie);
     }
 }
