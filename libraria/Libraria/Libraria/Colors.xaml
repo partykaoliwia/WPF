@@ -1,0 +1,10 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="PodstawowyKolor">#52172b</Color>
+    <Color x:Key="AkcentKolor">#194708</Color>
+    <Color x:Key="PodstawowyJasnyKolor">#70243e</Color>
+
+    <SolidColorBrush x:Key="PodstawowyBrush" Color="{StaticResource PodstawowyKolor}"/>
+    <SolidColorBrush x:Key="AkcentBrush" Color="{StaticResource AkcentKolor}"/>
+    <SolidColorBrush x:Key="PodstawowyJasnyBrush" Color="{StaticResource PodstawowyJasnyKolor}"/>
+</ResourceDictionary>
